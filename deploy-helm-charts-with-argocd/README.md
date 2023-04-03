@@ -12,7 +12,7 @@ The first option for deploying a helm chart is by referencing a chart that is ho
 
 When deploying a chart from the ArgoCD UI, users provide a URL to the Helm Repo containing a collection of charts and selects the `Helm` option in the `Source` menu.  The `Chart` and `Version` fields will provide a list available options from a dropdown menu to select from.
 
-!([helm-repo-deployment](images/argo-helm-repo-ui.png)
+![helm-repo-deployment](images/argo-helm-repo-ui.png)
 
 Once the a chart has been entered in the `Source` section, a `Helm` section will become available, allowing the user to specify a values file, 
 
