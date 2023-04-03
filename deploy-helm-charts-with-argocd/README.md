@@ -14,15 +14,13 @@ When deploying a chart from the ArgoCD UI, users provide a URL to the Helm Repo 
 
 ![helm-repo-deployment](images/argo-helm-repo-ui.png)
 
-Once the a chart has been entered in the `Source` section, a `Helm` section will become available, allowing the user to specify a values file, 
+Once the a chart has been entered in the `Source` section, a `Helm` section will become available, allowing the user to specify a values file, values in a YAML format, or by directly editing the default parameters auto-populated from the chart.
+
+![helm-chart-parameters](images/argo-helm-values-ui.png)
 
 > Tip
 >
-> As of OpenShift GitOps v1.x, you are only able to select a values.yaml packaged in the Helm Repo.  In future releases, Argo will support utilizing a values.yaml file located in a different git repository.
-
-Argo will auto detect the available values and the defaults.  The intuitive user experience provides 
-
-As of OpenShift GitOps 1.x, users can provide a values.yaml file separate from the helm repo location, making it easier to maintain the helm values outside of the ArgoCD application
+> As of OpenShift GitOps v1.8, you are only able to select a values.yaml packaged in the Helm Repo.  In future releases, Argo will support utilizing a values.yaml file located in a different git repository.
 
 ### Advantages
 
