@@ -20,19 +20,21 @@ Once the a chart has been entered in the `Source` section, a `Helm` section will
 
 > Tip
 >
-> As of OpenShift GitOps v1.8, you are only able to select a values.yaml packaged in the Helm Repo.  In future releases, Argo will support utilizing a values.yaml file located in a different git repository.
+> As of OpenShift GitOps v1.8, you are only able to select a values.yaml packaged in the Helm Repo.  In future releases, Argo will support utilizing a `values.yaml` file located in a different git repository.
 
 ### Advantages
 
-Deploying a chart directly from a Helm Repo is the simplest and most straight forward method for deploying a Helm chart in ArgoCD.  
+Deploying a chart directly from a Helm Repo provides a simple and intuitive user experience when utilizing the UI for deploying the chart.  The UI's auto-population of the default parameters helps to expose configurable options to the end users and avoid any mistakes such as misspelled parameter names.
 
 ### Disadvantages
 
-Deploying a chart directly from a Helm Repo provides the least native Helm experience and can be the most challenging option when troubleshooting.  Since the chart details and values settings are imbedded in the Argo Application object, it can be difficult to render the chart locally using `helm template`.
+This option makes it challenging to troubleshoot or render a helm chart from a development machine with the `helm template` command.  Any parameters that are populated in the UI are added into the Argo Application object which can be manually duplicated on the command line when running `helm template`.  The future option to add a `values.yaml` file from a separate git repo does greatly improve the ability to render the chart locally, but it can leave the `values.yaml` file orphaned in the git repo without any additional context, such as the chart repo, name, and version.
 
 ### Other Considerations
 
-This option is best for deploying charts that are well maintained, documented and require minimal troubleshooting.  The challenge of 
+Deploying the chart directly from a Helm Repo is best for deploying charts that are well maintained, documented and require minimal troubleshooting.  This option is great for rapid deployment/prototyping of charts or "set it and forget it" deployments.
+
+The challenges of rendering the chart locally can make this option especially challenging when developing custom charts.
 
 ## Argo App Pointing at a Chart in a Git Repo
 
