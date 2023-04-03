@@ -78,7 +78,24 @@ This pattern can also create "junk" files for a simple deployment that may not n
 
 ### Other Considerations
 
-This option is ideal for maximizing the flexibility when developing custom charts.  The ability to create a simple chart without needing to package and store it in a helm repo allows for extremely rapid prototyping.
+This option is ideal for having maximum flexibility when developing a custom charts.  The ability to create a simple chart without needing to package and store it in a Helm Repo allows for extremely rapid prototyping.
+
+Leveraging chart dependencies within the same git repo allow for a flexible pattern for building out a multi-tiered application deployment to different environments.  By creating a simple chart folder structure such as the one below, users are able to develop a custom chart for an application deployed to multiple environments and provide configuration differences in the environment-charts `values.yaml` file.
+
+```
+.
+├── common-charts
+│   └── my-application
+└── environment-charts
+    ├── dev
+    │   └── my-application
+    ├── prod
+    │   └── my-application
+    └── test
+        └── my-application
+```
+
+If managing a chart with a more complex lifecycle, users are still able to utilize the same environment-charts pattern and instead leverage a Helm Repo to host and version their charts.
 
 ## Argo App Pointing at a Kustomize Overlay Rendering a Chart
 
