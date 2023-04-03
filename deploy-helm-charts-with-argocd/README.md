@@ -48,7 +48,7 @@ Charts stored in the git repo can be a fully self contained chart, utilizing tem
 
 To utilize a chart stored in a Helm Repo, you can provide the dependency information in the `Chart.yaml` object:
 
-```
+```yaml
 dependencies:
   - name: "mlflow-server"
     version: "0.5.7"
@@ -57,7 +57,7 @@ dependencies:
 
 To reference another chart located in the same git repo, you can utilize the `file://` protocol in the `Chart.yaml` files repository field:
 
-```
+```yaml
 dependencies:
   - name: "my-local-chart"
     version: "0.1.0"
