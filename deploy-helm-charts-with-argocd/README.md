@@ -1,12 +1,12 @@
-# Deploying Helm Charts with OpenShift GitOps
+# Deploying Helm Charts with ArgoCD
 
-ArgoCD and its supported tools provide a number of different patterns that users can utilize for deploying Helm resources.
+ArgoCD provides a number of different ways to deploy resources from a Helm Chart.  We will discuss three different patterns that can be used to manage and deploy Helm Charts, and when and where to use each pattern.
 
-1) Argo App pointing at a chart in a Helm repo
-2) Argo App pointing at a chart in a git repo
-3) Argo App pointing at a kustomize overlay rendering a chart
+1) Argo Application pointing at a chart in a Helm repo
+2) Argo Application pointing at a chart in a git repo
+3) Argo Application pointing at a Kustomize folder to rendering a chart
 
-## Argo App Pointing at a Chart in a Helm Repo
+## Argo Application Pointing at a Chart in a Helm Repo
 
 The first option for deploying a Helm Chart is by referencing a chart that is hosted in a Helm Repository.
 
@@ -38,9 +38,9 @@ Deploying the chart directly from a Helm Repo is best for deploying charts that 
 
 The challenges of rendering the chart locally can make this option especially challenging when developing custom charts.
 
-When managing deployments of the chart to multiple environments with minimal differences the Argo Application file can easily be incorporated into a kustomize overlays pattern where the differences are patched for each environment.
+When managing deployments of the chart to multiple environments with minimal differences the Argo Application file can easily be incorporated into a Kustomize overlays pattern where the differences are patched for each environment.
 
-## Argo App Pointing at a Chart in a Git Repo
+## Argo Application Pointing at a Chart in a Git Repo
 
 Another option for deploying a Helm Chart with Argo is by generating a chart and storing it directly in a git repo.  When using this option, users will provide a git repo URL and the path to the `Chart.yaml` file.  Argo will automatically detect the Helm Chart and render the chart when deploying.
 
@@ -68,7 +68,7 @@ Parameters can be configured in the local Helm Chart using the `values.yaml` fil
 
 ### Advantages
 
-This design pattern provides the most native Helm developer experience, and easily allows developers to take advantage of Helms features such as `helm template` and `helm lint` in their local environment.
+This design pattern provides the most native Helm developer experience, and easily allows developers to take advantage of Helms features such as `helm template` and `helm lint` in their local environment, allowing them to easily render the chart locally for testing.
 
 ### Disadvantages
 
@@ -78,7 +78,7 @@ This pattern can also create "junk" files for a simple deployment that may not n
 
 ### Other Considerations
 
-This option is ideal for having maximum flexibility when developing a custom charts.  The ability to create a simple chart without needing to package and store it in a Helm Repo allows for extremely rapid prototyping.
+This option is ideal for getting maximum flexibility when developing a custom charts.  The ability to create a simple chart without needing to package and store it in a Helm Repo allows for extremely rapid prototyping.
 
 Leveraging chart dependencies within the same git repo allow for a flexible pattern for building out a multi-tiered application deployment to different environments.  By creating a simple chart folder structure such as the one below, users are able to develop a custom chart for an application deployed to multiple environments and provide configuration differences in the environment-charts `values.yaml` file.
 
@@ -97,9 +97,9 @@ Leveraging chart dependencies within the same git repo allow for a flexible patt
 
 If managing a chart with a more complex lifecycle, users are still able to utilize the same environment-charts pattern and instead leverage a Helm Repo to host and version their charts.
 
-## Argo App Pointing at a Kustomize Overlay Rendering a Chart
+## Argo Application Pointing at a Kustomize Overlay Rendering a Chart
 
-One final pattern for deploying Helm Charts with Argo is by rendering a Helm Chart with kustomize.  In your `kustomization.yaml` file you can provide chart details including the Helm Repo, chart version, and values.
+One final pattern for deploying Helm Charts with Argo is by rendering a Helm Chart with Kustomize.  In your `kustomization.yaml` file you can provide chart details including the Helm Repo, chart version, and values.
 
 Values can be provided using `valuesFile` to reference a file relative to the `kustomization.yaml` file or with `valuesInline` where you can directly specify parameters.
 
@@ -133,12 +133,20 @@ spec:
 
 ### Advantages
 
-One advantage to utilizing Kustomize to render a Helm Chart 
+If a team is already heavily relying on Kustomize in their GitOps environments, utilizing Kustomize to render a Helm Chart can help to keep a higher level of consistency with other configurations, and reduce the number of tools needed in the repo.
 
-The combination of kustomize with Helm provides a powerful option to manage objects.  When leveraging the base/overlays kustomize pattern, a Helm Chart can be rendered in the base layer, and additional patches can be applied in overlays.  The ability to apply patches after the Helm Chart is rendered allows you to modify the objects in ways the original chart author didn't include.
+The combination of Kustomize with Helm also provides a powerful option to manage objects.  When leveraging the base/overlays Kustomize pattern, a Helm Chart can be rendered in the base layer, and additional patches can be applied in overlays.  The ability to apply patches after the Helm Chart is rendered allows you to modify the objects in ways the original chart author didn't include.
 
 ### Disadvantages
 
+The `--enable-helm` flag introduces complexity when attempting to troubleshoot a chart locally.  Users may also experience issues if attempting to apply the Kustomize resources with `oc apply -k` since the Kustomize tools built into `oc`/`kubectl` do not support the `--enable-helm` flag.  Finally, this option does require modification to the default ArgoCD deployment to enable the feature.
+
+Another consideration when using this pattern, is that once Kustomize has inflated the chart, the objects are treated just like any other yaml objects, and is no longer Helm Chart.  When utilizing the base/overlays model as described above, you will lose the ability to control the chart objects using the values parameters.
+
 ### Other Considerations
 
+This option is ideal for users that are already heavily relying on Kustomize and don't want to introduce another tool their environment.  This option is also fantastic when you do not control the Helm Chart you are attempting to deploy, and you need to modify it in a way that the original author didn't include as a configurable option.
 
+## Final Thoughts
+
+One of the major challenges faced by the GitOps community is finding the "correct" way to manage resources and GitOps repo with growing complexity.  In many cases there is no "correct" solution and the three options presented here are all valid patterns for deploying and managing Helm Charts.  Hopefully the pros and cons discussed in this article help to provide some insight when next time you need to choose how to best incorporate a Helm Chart into your environment.
