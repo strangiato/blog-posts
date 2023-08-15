@@ -95,7 +95,7 @@ This pattern can also create "junk" files for a simple deployment that may not n
 
 This option is ideal for getting maximum flexibility when developing a custom charts.  The ability to create a simple chart without needing to package and store it in a Helm Repo allows for extremely rapid prototyping.
 
-If managing a chart with a more complex lifecycle, this pattern allows users to maintain different environments with different chart versions and promote changes through the environments in a similiar way that Images can be promoted to different environments.
+If managing a chart with a more complex lifecycle, this pattern allows users to maintain different environments with different chart versions and promote changes through the environments in a similar way that Images can be promoted to different environments.
 
 ## Argo Application Pointing at a Kustomize Overlay Rendering a Chart
 
