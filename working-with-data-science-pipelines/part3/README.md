@@ -79,8 +79,43 @@ Next we can execute the file to generate a new file called `add_pipeline.yaml`:
 python add_pipeline.py
 ```
 
-The newly created `app_pipeline.yaml` file will contain a Tekton PipelineRun object that can now be uploaded to the RHODS Dashboard
+The newly created `app_pipeline.yaml` file will contain a Tekton PipelineRun object that can now be uploaded to the RHODS Dashboard.
+
+Using the project we created in part one, from the Data Science Pipelines > Pipelines section click on the option to `import pipeline`:
+
+![Import Pipeline](images/import-pipeline.png)
+
+Next, enter a pipeline name and description, then click on the `upload` and navigate to the `add_pipeline.yaml` file created in the previous step.
+
+![Upload Pipeline](images/upload-pipeline.png)
+
+After the pipeline has been successfully uploaded, you can now create a new run of the pipeline.  Click on the `>` to expand the pipeline and click `Create run`.
+
+![Create Pipeline Run](images/create-run.png)
+
+Enter a name for the run and click `Create`.
+
+![Start Pipeline Run](images/create-run-2.png)
+
+A new pipeline run will execute our add pipeline.
+
+#### When to Use this Option
+
+The option to generate a pipeline as a YAML object is one of the easiest and most straight forward ways of working with Data Science Pipelines.  It is a great option when attempting to test out an initial pipeline or validating if a pipeline will execute correctly.
+
+In the case that a pipeline is not expect to change regularly or the pipeline is expected to be configured as a scheduled job without any regular updates, this option is generally the easiest and fastest way to accomplish those goals.
+
+However, due to the number of manual steps needed to upload and execute a pipeline it is generally not a great option beyond a simple proof of concept in most cases and one of the following options is generally recommended.
 
 ### Submitting a Run from Python
 
-## Uploading a Pipeline From Python
+Instead of compiling our pipeline into a YAML object, `kfp_tekton` provides the ability to create a client connect
+
+```python
+if __name__ == "__main__":
+    kfp_tekton.compiler.TektonCompiler().compile(
+        add_pipeline, package_path=__file__.replace(".py", ".yaml")
+    )
+```
+
+### Uploading a Pipeline From Python and Trigger a Run
