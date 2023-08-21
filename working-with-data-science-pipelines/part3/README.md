@@ -109,13 +109,54 @@ However, due to the number of manual steps needed to upload and execute a pipeli
 
 ### Submitting a Run from Python
 
-Instead of compiling our pipeline into a YAML object, `kfp_tekton` provides the ability to create a client connect
+Instead of compiling the pipeline into a YAML object and manually uploading that to the Dashboard, `kfp_tekton` provides the ability to create a client connect directly to the Data Science Pipeline instance, where we can submit a run directly from the development environment.
+
+As part of the creation of the DataSciencePipelineApplication object, the Data Science Pipeline Operator will create the `ds-pipeline-pipelines-definition` Deployment, with a Route.  We will use this Route to connect to the pipeline instance.
+
+![DSPA Route](images/dspa-route.png)
+
+Additional, this Route is secured by an OpenShift OAuth Proxy, which means that we will need to authenticate in our client connection using our OpenShift account.  To do this, we will need to provide a `Bearer Token`.  A `Bearer Token` is a string that can be used for authentication requests in an API request.  `Bearer Tokens` are short lived tokens that are only valid for about 24 hours.
+
+To obtain your `Bearer Token` you can utilize the `Copy login command` option from the OpenShift Web Console:
+
+![Copy login command](images/oc-ligin.png)
+
+![OpenShift Token](images/oc-token.png)
+
+Or if you are already logged in you can use the following command:
+
+```sh
+oc whoami --show-token
+```
+
+Now that we have the information that we need, we can update the code from our previous pipeline to create a new client object using the `TektonClient` function, where we can provide it the URL from the Route and the `Bearer Token`.  Next we will use the new client object to execute a new run of the pipeline using the `create_run_from_pipeline_func`.  In addition to the `add_pipeline`, we can optional provide the pipeline with arguments for the run and an experiment.
 
 ```python
 if __name__ == "__main__":
-    kfp_tekton.compiler.TektonCompiler().compile(
-        add_pipeline, package_path=__file__.replace(".py", ".yaml")
+    client = kfp_tekton.TektonClient(
+        host="https://ds-pipeline-pipelines-definition-pipeline-demo.apps.my-cluster.com",
+        existing_token="sha256~ZenMMDSu6YD6GAjv49alq2kkGebpCoLb7crAZcXk5Do",
+    )
+
+    arguments = {"a": "7", "b": "8"}
+    client.create_run_from_pipeline_func(
+        add_pipeline, arguments=arguments, experiment_name="submitted-example"
     )
 ```
+
+> Tip:
+> In the example above we have hard coded our host and token into the client connection as a string for the sake of simplicity.  Generally this information should be abstracted out of the code and accessed from an environment variable.  Python provides the `os.environ` standard library for reading environment variables from the system and there are a number of third party packages such as [python-dotenv](https://pypi.org/project/python-dotenv/) that can help making working with environment variables easier.  The `Bearer Token` is a secret that should never be checked into git or shared between users as it would allow anyone to login to the OpenShift cluster as if they were the user.
+
+In the Dashboard, a new Run will be created and start executing:
+
+![Executed Run](images/executed-run.png)
+
+#### When to Use this Option
+
+This option is great for rapid prototyping or when building the initial pipeline.  The ability to submit a run directly from a development environment make it easy to iterate on different parts of the pipeline without having to manually upload the pipeline to the Dashboard every time the pipeline is changed.
+
+This option can also be useful when executing the run from inside of another CI process.  Using tools like OpenShift Pipelines (Tekton), you can create a fully automated CI pipeline triggered by a code commit to git that builds an image containing the necessary python packages, and execute the pipeline run without any manual steps.
+
+One disadvantage of this method is that it creates a run directly from python and does not create a pipeline artifact in the Dashboard.  This makes it impossible to utilize some features such as the scheduling capabilities or the ability to trigger new runs directly from the Dashboard.
 
 ### Uploading a Pipeline From Python and Trigger a Run
