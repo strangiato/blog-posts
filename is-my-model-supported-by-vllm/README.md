@@ -14,7 +14,7 @@ Models that are included in the Validated Models program have been rigorously te
 
 You can find collections of the Validated Models on the [RedHatAI](https://huggingface.co/RedHatAI) HuggingFace page.
 
-![Red Hat Validated Models on Hugging Face](images/validated-model-collections.png)
+![Red Hat Validated Models on Hugging Face](images/validated-models-collections.png)
 
 Alternatively you can look up specific models under the RedHatAI page and look for the "Model validated by Red Hat" badge.
 
