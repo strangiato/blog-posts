@@ -12,7 +12,7 @@ Red Hat's [Validated Models](https://www.redhat.com/en/products/ai/validated-mod
 
 Models that are included in the Validated Models program have been rigorously tested by Red Hat engineering with official Red Hat vLLM images to ensure they will run.
 
-You can find collections of the Validated Models on the [RedHatAI](https://huggingface.co/RedHatAI) HuggingFace page.
+You can find collections of the Validated Models on the [RedHatAI](https://huggingface.co/RedHatAI) HuggingFace page, where you can browse the Validated Models catalog.
 
 ![Red Hat Validated Models on Hugging Face](images/validated-models-collections.png)
 
