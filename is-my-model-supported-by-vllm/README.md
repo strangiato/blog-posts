@@ -24,6 +24,8 @@ In addition to the "Model validated by Red Hat" badge, the model card will also 
 
 OpenShift AI users can also find the Validated Models in the Models section of the AI Hub.  Models in the AI Hub include Performance Insights data as well as the ability to easily deploy the model using a ModelCar image.
 
+Additionally, Red Hat publishes a [support matrix](https://docs.redhat.com/en/documentation/red_hat_ai/3/html/validated_models/model-support-matrix_validated-models) for the Validated Models in the official Red Hat AI Inference docs which include the minimum vLLM version, along with the corresponding RHAII and RHOAI versions that ship that vLLM version.
+
 ## vLLM Model Support Fundamentals
 
 While the Validated Models program can help to provide customers confidence in their ability to support models that have already been tested by Red Hat, users may still find themselves trying to understand if a specific model is supported by vLLM that have not be validated by Red Hat.
@@ -66,9 +68,11 @@ RHAII images can be found in the `rhaii` namespace on the Red Hat Container Cata
 
 Understanding the version of vLLM shipped in each release of RHAII can be critical making informed decisions on which version of RHAII you may require to run your desired model.
 
-The easiest way to determine which version of vLLM is shipped in each RHAII release is by checking the [Release notes](https://docs.redhat.com/en/documentation/red_hat_ai_inference/3.4/html-single/release_notes/index#rhaii-340-ga-new-vllm-dev-features)
+The easiest way to determine which version of vLLM is shipped in each RHAII release is by checking the [Release notes](https://docs.redhat.com/en/documentation/red_hat_ai_inference/3.4/html-single/release_notes/index#rhaii-340-ga-new-vllm-dev-features).
 
-RHAII releases a new version about once a month as either a Generally Available (GA) release or an Early Access (EA) release.  EA releases are not supported but can be used for testing newer models, while GA releases have a seven month support window.
+RHAII releases a new version about once a month as either a Generally Available (GA) release or an Early Access (EA) release.  EA releases are not supported but can be used for testing newer models, while GA releases have a seven month support window.  Moving forward, Red Hat hopes to increase the rate of supported releases of RHAII to make it even easier for customers to the latest version of vLLM.
+
+### Day Zero Model Support
 
 Additionally, Red Hat publishes preview releases such as [rhaii-preview/vllm-cuda-rhel9](https://catalog.redhat.com/en/software/containers/rhaii-preview/vllm-cuda-rhel9) which can be used to test the latest releases of vLLM and models, often with day zero support for new models.
 
