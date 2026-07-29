@@ -63,6 +63,8 @@ In most scenarios you will not be able to sustain that level of maximum load 24/
 
 Measuring real-world token processing is the better metric for deriving cost per token.  Returning to our example: $50,000 ÷ 500M tokens is your true cost per token for that month, not $50,000 divided by the theoretical maximum you could have served if the system ran flat-out.
 
+OpenShift AI helps to make it easy to measure your real world token usage with it's integration with OpenShift Metrics/Prometheus and helps to track usage by individuals and teams with Models-as-a-Service.
+
 ### Optimizing Tokens Processed
 
 The biggest impact on cost per token usually comes from **increasing overall usage**, not from squeezing more peak throughput out of an underutilized system.  If your system can process 1,440M tokens per day but you are only processing 500M, driving more use cases onto the platform, or growing usage of existing ones, improves the denominator directly.  In our monthly example, growing from 500M to 1,000M tokens at the same $50,000 spend halves cost per million tokens.
