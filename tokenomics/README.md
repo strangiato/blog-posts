@@ -8,13 +8,13 @@ In this article we will walk through a practical way to calculate cost per token
 
 ## A Simple Formula
 
-At its core, cost per token is:
+At its core, cost per token over a period of time is:
 
 **Cost per token = operating cost ÷ tokens processed**
 
-Over the same period of time.  For example, a single month.  To improve that metric, you can reduce the overall cost, increase the number of tokens processed, or both.
+To improve that metric, you can reduce the overall cost, increase the number of tokens processed, or both.
 
-Here is a worked example we will return to throughout this article.  Suppose your LLM infrastructure costs about **$50,000 per month** and you process **500 million tokens** in that month:
+Suppose your LLM infrastructure costs about **$50,000 per month** and you process **500 million tokens** in that month:
 
 **$50,000 ÷ 500M tokens ≈ $0.10 per million tokens**
 
@@ -51,13 +51,13 @@ Autoscaling both the model server replicas and the nodes in the cloud environmen
 
 For self-hosted environments, you can still take advantage of autoscaling to reduce how much hardware a specific model is using and free up those resources for other use cases, such as overnight batch training jobs, to spread the cost of the hardware across multiple workloads.  Additionally, while you are committed to the hardware you have purchased, spending more time up front to understand what models you plan to deploy, and how many requests/tokens you need to serve, can help you right-size before making hardware purchases.
 
-Software choices also affect people cost.  Platforms like OpenShift AI make it easier to source models and run supported vLLM releases from a container registry, which reduces the time teams spend building and maintaining custom inference images, and that time is part of your operating cost.
+Software choices also affect people cost.  Platforms like OpenShift AI make it easier to source models and run supported vLLM releases from a container registry, which reduces the time teams spend building and maintaining custom inference images, and that time savings helps to improve operating cost.
 
 ## Tokens Processed
 
 Tokens processed can be evaluated from two different lenses: your **theoretical maximum** (how many tokens the system *could* process) and your **actual tokens processed** (how many you *did* process over a period of time).
 
-You can derive the theoretical maximum by performing load testing with tools such as [GuideLLM](https://github.com/vllm-project/guidellm), which simulates realistic workloads and ramps concurrent connections until performance starts to degrade.  Based on that result, you can estimate the theoretical maximum number of tokens you can process in a period of time.  For example, if you were able to process 1M tokens per minute you could theoretically process 1,440M tokens per day.
+You can derive the theoretical maximum by performing load testing with tools such as [GuideLLM](https://github.com/vllm-project/guidellm), which simulates realistic workloads and ramps up concurrent connections until performance starts to degrade.  Based on that result, you can estimate the theoretical maximum number of tokens you can process in a period of time.  For example, if you were able to process 1M tokens per minute you could theoretically process 1,440M tokens per day.
 
 In most scenarios you will not be able to sustain that level of maximum load 24/7. However, theoretical maximum is still useful for right-sizing and capacity planning.  For example, deciding how many replicas you need to meet real-world demand.  If you have built a system that can process 1,440M tokens per day, but you are only processing 50M, you may be over-provisioned relative to demand, which keeps the cost side of the formula high relative to the tokens side.
 
@@ -75,13 +75,21 @@ Teams often turn next to **optimizing the model deployment** itself by tuning se
 
 Those optimizations still matter as *enablers*: higher capacity can absorb additional use cases without new hardware, or let you scale down to fewer resources if demand is already met.  Treat them as a way to either grow the tokens side or shrink the cost side, not as an automatic win on cost per token by themselves.
 
+## Tuning with vLLM and LLM-D
+
+Out of the box vLLM attempts to provide a balanced approach between total throughput and request latency, with minimal extra configuration.  While this default configuration provides a great out of the box experience, additional tuning targeted at the specific use cases that vLLM instance is attempting to process can provide additional performance for the specific characters you wish to optimize.  Generally, organizations seek to enable the maximum throughput while still maintaining a minimum latency that meets their SLOs.  With careful tuning, you can achieve additional performance that can help to improve your overall cost per token.
+
+LLM-D also offers a number of performance tuning options that can positively impact cost per token.  Capabilities like intelligent routing help to enable more opportunities to take advantage of KV Cache hits when you have multiple vLLM replicas, KV Cache offloading allows you to use CPU Memory to expand the KV Cache beyond what is able to be stored in vRAM, and Prefill/Decode Disaggregation can help to reduce bottlenecks in vLLM for larger scale deployments.
+
 ## The Impact of Model Choice
 
 The model you choose pulls on both sides of the formula.  Larger models usually raise the cost side through more GPUs per replica.  They may also change how many tokens you can serve per dollar on the tokens side through throughput and latency characteristics.
 
 A model such as [Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) is significantly smaller than [Llama-3.3-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct).  The 8B model can easily fit on a single H100, or a more budget GPU like an L40S, while the 70B model may require up to four H100s to serve a single instance.  Choosing the smaller model when quality is "good enough" for the use case can cut hardware cost sharply, while also enabling higher total throughput and if that frees budget or capacity for more traffic, cost per token improves further.
 
-Quantization is another lever.  An fp8 (8-bit floating point) version of the 70B model could be deployed on two H100s instead of four, reducing hardware required while aiming to preserve much of the model's quality.  Quantized or smaller models may also sustain higher tokens per second, which only improves cost per token if you use that extra capacity or scale the deployment down.
+Quantization is another lever.  An fp8 (8-bit floating point) version of the 70B model could be deployed on two H100s instead of four, reducing hardware required while aiming to preserve much of the model's quality.
+
+Quantized and smaller models can help to improve the cost per token by reducing the overall hardware required for a specific workload, or potentially improving the total throughput with the same hardware.
 
 ## Input Tokens, Cached Tokens, and Output Tokens
 
@@ -89,7 +97,7 @@ When dealing with cloud providers, you will often see different prices depending
 
 **Input tokens** are generally processed in a single pass.  Model servers like vLLM can take strong advantage of continuous batching here, so input-heavy workloads are often highly parallelized and relatively efficient per token.
 
-**Cached tokens** are tokens that have already been computed and are available in the GPU's KV cache (the key-value cache vLLM uses to avoid recomputing attention state for repeated context).  vLLM can reuse cached tokens when queries share common system prompts, or in multi-turn conversations where chat history is resent with each request.  Cached tokens are generally very cheap because the value is looked up rather than recomputed on the GPU.
+**Cached tokens** are tokens that have already been computed and are available in the GPU's KV cache (the key-value cache vLLM uses to avoid recomputing values for repeated context).  vLLM can reuse cached tokens when queries share common system prompts, or in multi-turn conversations where chat history is resent with each request.  Cached tokens are generally very cheap because the value is looked up rather than recomputed on the GPU.
 
 Projects like [llm-d](https://github.com/llm-d/llm-d) can increase the chance of a KV cache hit in multi-replica deployments through intelligent routing that sends related requests to replicas more likely to already hold the relevant cache, which improves total throughput and possibly reduce the effective cost when your traffic has shared context.
 
